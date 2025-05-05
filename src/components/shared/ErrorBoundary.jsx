@@ -12,6 +12,11 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error en el componente:', error, errorInfo)
+  
+    // Registrar errores específicos de URL o Supabase
+    if (error.message && error.message.includes('URL')) {
+      console.error('Error de URL detectado. Verifica la configuración de Supabase y las variables de entorno.')
+    }
   }
 
   render() {
