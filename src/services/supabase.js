@@ -10,3 +10,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   }
 });
+
+console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('KEY length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length);
