@@ -1,50 +1,49 @@
-import React, { useState } from 'react'
-import Login from './components/auth/Login'
-import Register from './components/auth/Register'
-import ErrorBoundary from './components/shared/ErrorBoundary'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import InitiateDashboard from './components/dashboard/InitiateDashboard'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import InitiateDashboard from './components/dashboard/InitiateDashboard';
+import AuthHandler from './components/auth/AuthHandler';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 
-function PrivateRoute({ children }) {
-  const { user } = useAuth()
-  return user ? children : <Navigate to="/" />
-}
-
-function App() {
-  const [isLogin, setIsLogin] = useState(true)
+// Componente para rutas protegidas
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
   
-  const handleSwitchMode = () => {
-    setIsLogin(!isLogin)
+  if (loading) return <div>Cargando...</div>;
+  
+  if (!user) {
+    return <Navigate to="/login" />;
   }
   
+  return children;
+};
+
+function App() {
   return (
     <AuthProvider>
-      <Router>
-        <ErrorBoundary>
-          <div className="min-h-screen bg-dark">
-            <Routes>
-              <Route path="/" element={
-                <div className="container mx-auto px-4 py-8">
-                  <div className="max-w-md mx-auto bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-sith/20">
-                    {isLogin ? 
-                      <Login onSwitchMode={handleSwitchMode} /> : 
-                      <Register onSwitchMode={handleSwitchMode} />
-                    }
-                  </div>
-                </div>
-              } />
-              <Route path="/dashboard" element={
-                <PrivateRoute>
+      <ErrorBoundary>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthHandler />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
                   <InitiateDashboard />
-                </PrivateRoute>
-              } />
-            </Routes>
-          </div>
-        </ErrorBoundary>
-      </Router>
+                </ProtectedRoute>
+              } 
+            />
+            {/* Ruta para manejar el hash con el token */}
+            <Route path="/#access_token=*" element={<AuthHandler />} />
+          </Routes>
+        </Router>
+      </ErrorBoundary>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

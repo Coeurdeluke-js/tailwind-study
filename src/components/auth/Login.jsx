@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { supabase } from '../../services/supabase'
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const Login = ({ onSwitchMode }) => {
   const [formData, setFormData] = useState({
@@ -116,7 +116,11 @@ const Login = ({ onSwitchMode }) => {
               {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
             <p className="text-sm font-light text-light/70">
-              ¿No tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); onSwitchMode() }} className="font-medium text-sith hover:underline">Registrarse</a>
+              ¿No tienes cuenta? {onSwitchMode ? (
+                <a href="#" onClick={(e) => { e.preventDefault(); onSwitchMode() }} className="font-medium text-sith hover:underline">Registrarse</a>
+              ) : (
+                <Link to="/register" className="font-medium text-sith hover:underline">Registrarse</Link>
+              )}
             </p>
           </form>
         </div>

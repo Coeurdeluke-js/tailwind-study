@@ -8,6 +8,11 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../services/supabase'
 
+// Iconos adicionales para las nuevas funcionalidades
+import {
+  UserCircle, Palette, Scissors, Brush
+} from 'lucide-react'
+
 const InitiateDashboard = () => {
   const [isOpen, setIsOpen] = useState(false) // Cambiado a false para iniciar colapsado
   const [userName, setUserName] = useState('')
@@ -17,14 +22,38 @@ const InitiateDashboard = () => {
     return savedMode ? JSON.parse(savedMode) : true // Por defecto modo oscuro
   })
   const [notifications, setNotifications] = useState([])
-  const [activeSection, setActiveSection] = useState('welcome')
-  const [currentContent, setCurrentContent] = useState('welcome') // Añadido esta línea para definir currentContent
+  const [currentContent, setCurrentContent] = useState('welcome')
   const navigate = useNavigate()
+
+  // Estados para los paneles
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [showSecurityPanel, setShowSecurityPanel] = useState(false)
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false)
+  const [showAcolyteModal, setShowAcolyteModal] = useState(false)
+  
+  // Estado para el avatar personalizable
+  const [avatarOptions, setAvatarOptions] = useState({
+    skin: 'pale',
+    eyes: 'yellow',
+    hair: 'black',
+    scars: 'none',
+    tattoos: 'none'
+  })
+  
+  // Estado para el formulario de configuración
+  const [profileData, setProfileData] = useState({
+    name: '',
+    username: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName')
     if (storedName) {
       setUserName(storedName)
+      setProfileData(prev => ({...prev, name: storedName}))
     }
     // Simular notificaciones
     setNotifications([
@@ -32,6 +61,43 @@ const InitiateDashboard = () => {
       { id: 2, title: 'Actualización de rango', read: false }
     ])
   }, [])
+
+  // Función para manejar cambios en el formulario de perfil
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target
+    setProfileData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+  
+  // Función para guardar cambios de perfil
+  const handleSaveProfile = async () => {
+    try {
+      // Aquí iría la lógica para actualizar el perfil en Supabase
+      // Por ejemplo:
+      /*
+      const { data, error } = await supabase
+        .from('users')
+        .update({ 
+          name: profileData.name,
+          username: profileData.username 
+        })
+        .eq('id', user.id)
+      */
+      
+      // Actualizar el nombre en localStorage
+      localStorage.setItem('userName', profileData.name)
+      setUserName(profileData.name)
+      
+      // Mostrar mensaje de éxito
+      alert('Perfil actualizado correctamente')
+      setShowSettingsPanel(false)
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error)
+      alert('Error al actualizar el perfil')
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -46,22 +112,125 @@ const InitiateDashboard = () => {
     setIsOpen(!isOpen)
   }
 
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [showSecurityPanel, setShowSecurityPanel] = useState(false)
-  // Añade este estado para controlar la visibilidad del panel de configuración
-  const [showSettingsPanel, setShowSettingsPanel] = useState(false)
-  
   // Función para manejar el clic en el botón de configuración
   const handleSettingsClick = () => {
     setShowSettingsPanel(true)
   }
 
-  // Añadir función para manejar notificaciones
+  // Función para manejar notificaciones
   const handleNotificationClick = () => {
     setShowNotifications(true)
   }
 
+  // Función para manejar el clic en Acólito
+  const handleAcolyteClick = () => {
+    setShowAcolyteModal(true)
+  }
+
+  // Función para cambiar de sección
+  const handleSectionChange = (section) => {
+    setCurrentContent(section)
+    setShowNotifications(false)
+    setShowSecurityPanel(false)
+    setShowSettingsPanel(false)
+  }
+
+  // Mejorar el manejo del modo oscuro
+  useEffect(() => {
+    // Guarda la preferencia en localStorage
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
+    
+    // Aplica las clases al documento
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('light')
+      document.body.classList.add('bg-dark')
+      document.body.classList.remove('bg-light')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.add('light')
+      document.body.classList.remove('bg-dark')
+      document.body.classList.add('bg-light')
+    }
+  }, [darkMode])
+
+  // Componentes de contenido para cada sección
   const contentComponents = {
+    welcome: (
+      <div className="space-y-6">
+        <div className="bg-dark/50 border border-sith/20 rounded-lg p-6 mb-6">
+          <div className="flex items-center mb-4">
+            <Star className="text-sith mr-3" size={24} />
+            <h2 className="text-2xl font-bold text-light">Bienvenido a la Academia Sith, {userName || 'Luke'}</h2>
+          </div>
+          <p className="text-light/80 mb-6">Comienza tu viaje en el camino del conocimiento oscuro.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <ScrollText className="text-sith mr-3" size={24} />
+              <h3 className="text-xl font-bold text-light">Contenido Introductorio</h3>
+            </div>
+            <p className="text-light/80 mb-4">Descubre los fundamentos del poder oscuro.</p>
+            <button
+              onClick={() => handleSectionChange('intro')}
+              className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
+            >
+              <Eye size={16} className="mr-2" />
+              Explorar
+            </button>
+          </div>
+
+          <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <Book className="text-sith mr-3" size={24} />
+              <h3 className="text-xl font-bold text-light">Explorar Academia</h3>
+            </div>
+            <p className="text-light/80 mb-4">Conoce nuestras instalaciones y recursos.</p>
+            <button
+              onClick={() => handleSectionChange('academy')}
+              className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
+            >
+              <Video size={16} className="mr-2" />
+              Recorrido Virtual
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <UserPlus className="text-sith mr-3" size={24} />
+              <h3 className="text-xl font-bold text-light">Conviértete en Acólito</h3>
+            </div>
+            <p className="text-light/80 mb-4">Accede a contenido exclusivo y mentorías personalizadas.</p>
+            <button
+              onClick={handleAcolyteClick}
+              className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
+            >
+              <Info size={16} className="mr-2" />
+              Más Información
+            </button>
+          </div>
+
+          <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <Calendar className="text-sith mr-3" size={24} />
+              <h3 className="text-xl font-bold text-light">Próximos Eventos</h3>
+            </div>
+            <p className="text-light/80 mb-4">Descubre los eventos destacados de la academia.</p>
+            <button
+              onClick={() => handleSectionChange('events')}
+              className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
+            >
+              <Eye size={16} className="mr-2" />
+              Ver Eventos
+            </button>
+          </div>
+        </div>
+      </div>
+    ),
     intro: (
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-light flex items-center gap-2">
@@ -98,6 +267,65 @@ const InitiateDashboard = () => {
           <Book className="text-sith" size={24} />
           Explorar Academia
         </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-dark/50 p-6 rounded-lg border border-sith/20">
+            <h3 className="text-xl font-bold text-light mb-4 flex items-center gap-2">
+              <Sword className="text-sith" size={20} />
+              Entrenamiento de Combate
+            </h3>
+            <p className="text-light/80 mb-4">
+              Domina las técnicas de combate Sith y aprende a canalizar tu ira en poder destructivo.
+            </p>
+            <div className="flex items-center gap-2 text-light/70 mb-4">
+              <Clock size={16} />
+              <span>Duración: 4 semanas</span>
+            </div>
+            <button className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors">
+              Ver detalles
+            </button>
+          </div>
+          <div className="bg-dark/50 p-6 rounded-lg border border-sith/20">
+            <h3 className="text-xl font-bold text-light mb-4 flex items-center gap-2">
+              <BookOpen className="text-sith" size={20} />
+              Códigos Sith Ancestrales
+            </h3>
+            <p className="text-light/80 mb-4">
+              Estudia los antiguos textos Sith y descubre secretos olvidados del lado oscuro.
+            </p>
+            <div className="flex items-center gap-2 text-light/70 mb-4">
+              <Clock size={16} />
+              <span>Duración: 3 semanas</span>
+            </div>
+            <button className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors">
+              Ver detalles
+            </button>
+          </div>
+        </div>
+        <div className="bg-dark/30 p-6 rounded-lg border border-sith/20 mb-8">
+          <h3 className="text-xl font-bold text-light mb-4">Próximas Clases Magistrales</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-sith/10">
+              <div>
+                <h4 className="font-medium text-light">Manipulación de la Fuerza</h4>
+                <p className="text-light/70 text-sm">Instructor: Lord Tyranus</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sith font-medium">15 de Marzo</p>
+                <p className="text-light/70 text-sm">19:00 - 21:00</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-center pb-3 border-b border-sith/10">
+              <div>
+                <h4 className="font-medium text-light">Alquimia Sith</h4>
+                <p className="text-light/70 text-sm">Instructor: Lady Zannah</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sith font-medium">18 de Marzo</p>
+                <p className="text-light/70 text-sm">17:00 - 20:00</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="aspect-video rounded-lg overflow-hidden border border-sith/20">
           <iframe 
             className="w-full h-full"
@@ -150,16 +378,177 @@ const InitiateDashboard = () => {
           ))}
         </div>
       </div>
+    ),
+    avatars: (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-light flex items-center gap-2">
+          <UserCircle className="text-sith" size={24} />
+          Avatares Personalizables Sith
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1 bg-dark/50 p-6 rounded-lg border border-sith/20">
+            <div className="aspect-square bg-dark/70 rounded-lg border border-sith/30 flex items-center justify-center mb-4">
+              {/* Aquí iría la vista previa del avatar */}
+              <div className="text-center">
+                <div className="w-32 h-32 mx-auto bg-sith/20 rounded-full mb-2 flex items-center justify-center">
+                  <UserCircle size={80} className="text-sith" />
+                </div>
+                <p className="text-light/70 text-sm">Vista previa del avatar</p>
+              </div>
+            </div>
+            <button className="w-full bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors">
+              Guardar Avatar
+            </button>
+          </div>
+          
+          <div className="md:col-span-2 bg-dark/50 p-6 rounded-lg border border-sith/20">
+            <h3 className="text-xl font-bold text-light mb-4 flex items-center gap-2">
+              <Palette className="text-sith" size={20} />
+              Personalización
+            </h3>
+            
+            <div className="space-y-4">
+              {/* Tono de piel */}
+              <div>
+                <label className="block text-light mb-2">Tono de piel</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {['pale', 'fair', 'medium', 'dark', 'red'].map(skin => (
+                    <button 
+                      key={skin}
+                      onClick={() => setAvatarOptions({...avatarOptions, skin})}
+                      className={`h-8 rounded-md ${
+                        avatarOptions.skin === skin 
+                          ? 'ring-2 ring-sith' 
+                          : 'ring-1 ring-sith/30'
+                      }`}
+                      style={{
+                        backgroundColor: 
+                          skin === 'pale' ? '#f8d8c9' : 
+                          skin === 'fair' ? '#e8b298' : 
+                          skin === 'medium' ? '#c68642' : 
+                          skin === 'dark' ? '#6d4c41' :
+                          '#b71c1c'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Color de ojos */}
+              <div>
+                <label className="block text-light mb-2">Color de ojos</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {['yellow', 'red', 'orange', 'purple', 'blue'].map(eyes => (
+                    <button 
+                      key={eyes}
+                      onClick={() => setAvatarOptions({...avatarOptions, eyes})}
+                      className={`h-8 rounded-md ${
+                        avatarOptions.eyes === eyes 
+                          ? 'ring-2 ring-sith' 
+                          : 'ring-1 ring-sith/30'
+                      }`}
+                      style={{
+                        backgroundColor: 
+                          eyes === 'yellow' ? '#ffc107' : 
+                          eyes === 'red' ? '#d32f2f' : 
+                          eyes === 'orange' ? '#ff5722' : 
+                          eyes === 'purple' ? '#9c27b0' :
+                          '#1976d2'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Estilo de cabello */}
+              <div>
+                <label className="block text-light mb-2">Estilo de cabello</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['black', 'brown', 'red', 'bald', 'gray', 'white'].map(hair => (
+                    <button 
+                      key={hair}
+                      onClick={() => setAvatarOptions({...avatarOptions, hair})}
+                      className={`py-2 px-3 rounded-md ${
+                        avatarOptions.hair === hair 
+                          ? 'bg-sith text-light' 
+                          : 'bg-dark/70 text-light/70 hover:bg-dark/90'
+                      }`}
+                    >
+                      {hair === 'black' ? 'Negro' : 
+                       hair === 'brown' ? 'Castaño' : 
+                       hair === 'red' ? 'Rojo' : 
+                       hair === 'bald' ? 'Calvo' :
+                       hair === 'gray' ? 'Gris' : 'Blanco'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Cicatrices */}
+              <div>
+                <label className="block text-light mb-2">Cicatrices</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['none', 'face', 'eye', 'cheek', 'multiple'].map(scars => (
+                    <button 
+                      key={scars}
+                      onClick={() => setAvatarOptions({...avatarOptions, scars})}
+                      className={`py-2 px-3 rounded-md ${
+                        avatarOptions.scars === scars 
+                          ? 'bg-sith text-light' 
+                          : 'bg-dark/70 text-light/70 hover:bg-dark/90'
+                      }`}
+                    >
+                      {scars === 'none' ? 'Ninguna' : 
+                       scars === 'face' ? 'Facial' : 
+                       scars === 'eye' ? 'Ojo' : 
+                       scars === 'cheek' ? 'Mejilla' : 'Múltiples'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Tatuajes */}
+              <div>
+                <label className="block text-light mb-2">Tatuajes Sith</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['none', 'minimal', 'face', 'full', 'ritual'].map(tattoos => (
+                    <button 
+                      key={tattoos}
+                      onClick={() => setAvatarOptions({...avatarOptions, tattoos})}
+                      className={`py-2 px-3 rounded-md ${
+                        avatarOptions.tattoos === tattoos 
+                          ? 'bg-sith text-light' 
+                          : 'bg-dark/70 text-light/70 hover:bg-dark/90'
+                      }`}
+                    >
+                      {tattoos === 'none' ? 'Ninguno' : 
+                       tattoos === 'minimal' ? 'Mínimo' : 
+                       tattoos === 'face' ? 'Facial' : 
+                       tattoos === 'full' ? 'Completo' : 'Ritual'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-dark/30 p-6 rounded-lg border border-sith/20">
+          <h3 className="text-xl font-bold text-light mb-4">Sobre The Sith Clash</h3>
+          <p className="text-light/80 mb-4">
+            Tu avatar personalizado será utilizado en el minijuego The Sith Clash, donde competirás contra otros aprendices Sith en duelos de habilidad y estrategia. Personaliza tu apariencia para intimidar a tus oponentes y mostrar tu verdadera naturaleza Sith.
+          </p>
+          <div className="flex items-center gap-2 text-sith">
+            <Info size={20} />
+            <span className="font-medium">Próximamente: Armaduras y sables de luz personalizables</span>
+          </div>
+        </div>
+      </div>
     )
   }
 
-  const handleSectionChange = (section) => {
-    setCurrentContent(section)
-    setShowNotifications(false)
-    setShowSecurityPanel(false)
-    setShowSettingsPanel(false)
-  }
-
+  // Componentes de paneles
   const NotificationsPanel = () => (
     <div className="fixed top-16 right-4 w-80 bg-dark border border-sith/20 p-6 transform transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg rounded-lg z-50">
       <div className="flex justify-between items-center mb-6">
@@ -178,60 +567,151 @@ const InitiateDashboard = () => {
     </div>
   )
 
-  // Mejorar el manejo del modo oscuro
-  useEffect(() => {
-    // Guarda la preferencia en localStorage
-    localStorage.setItem('darkMode', JSON.stringify(darkMode))
-    
-    // Aplica las clases al documento
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-      document.documentElement.classList.remove('light')
-      document.body.classList.add('bg-dark')
-      document.body.classList.remove('bg-light')
-    } else {
-      document.documentElement.classList.remove('dark')
-      document.documentElement.classList.add('light')
-      document.body.classList.remove('bg-dark')
-      document.body.classList.add('bg-light')
-    }
-  }, [darkMode])
-
-  const [showAcolyteModal, setShowAcolyteModal] = useState(false)
-  const [selectedAcolyte, setSelectedAcolyte] = useState(null)
-
-  const handleAcolyteClick = () => {
-    setShowAcolyteModal(true)
-  }
-
-  // Componente AcolyteInfoPanel definido dentro de InitiateDashboard
-  const AcolyteInfoPanel = ({ onClose }) => {
+  // Componente para el panel de configuración
+  const SettingsPanel = () => (
+    <div className="fixed top-16 right-4 w-96 max-w-full bg-dark border border-sith/20 p-6 transform transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg rounded-lg z-50 max-h-[80vh]">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-light">Configuración</h2>
+        <button onClick={() => setShowSettingsPanel(false)} className="text-light hover:text-sith">
+          <X size={24} />
+        </button>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-light">Información de Perfil</h3>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-light mb-1">Nombre</label>
+              <input 
+                type="text" 
+                name="name"
+                value={profileData.name}
+                onChange={handleProfileChange}
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-light mb-1">Nombre de usuario</label>
+              <input 
+                type="text" 
+                name="username"
+                value={profileData.username}
+                onChange={handleProfileChange}
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-light">Cambiar Contraseña</h3>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-light mb-1">Contraseña actual</label>
+              <input 
+                type="password" 
+                name="currentPassword"
+                value={profileData.currentPassword}
+                onChange={handleProfileChange}
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-light mb-1">Nueva contraseña</label>
+              <input 
+                type="password" 
+                name="newPassword"
+                value={profileData.newPassword}
+                onChange={handleProfileChange}
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-light mb-1">Confirmar nueva contraseña</label>
+              <input 
+                type="password" 
+                name="confirmPassword"
+                value={profileData.confirmPassword}
+                onChange={handleProfileChange}
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith"
+              />  
+                            <label className="block text-sm font-medium text-light mb-1">Confirmar nueva contraseña</label>
+              <input 
+                type="password" 
+                name="confirmPassword" 
+                value={profileData.confirmPassword} 
+                onChange={handleProfileChange} 
+                className="w-full px-3 py-2 border border-sith/30 rounded-lg bg-dark/80 text-light focus:outline-none focus:ring-2 focus:ring-sith/50"
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <button 
+              onClick={handleSaveProfile} 
+              className="bg-sith text-light px-6 py-2 rounded-lg hover:bg-sith-dark transition-colors"
+            >
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  // Componente para el panel de seguridad
+  const SecurityPanel = ({ onClose }) => {
     const handleBackdropClick = (e) => {
       if (e.target === e.currentTarget) {
         onClose();
       }
     };
-
+    
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={handleBackdropClick}>
-        <div className="bg-dark border border-sith/20 rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl">
+        <div className="bg-dark border border-sith/20 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-light">Programa de Acólitos</h2>
+            <h2 className="text-xl font-bold text-light">Configuración de Seguridad</h2>
             <button onClick={onClose} className="text-light hover:text-sith">
               <X size={24} />
             </button>
           </div>
           
-          <div className="space-y-6 text-light/80">
+          <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-bold text-light mb-3">Beneficios Exclusivos</h3>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Acceso a entrenamientos avanzados</li>
-                <li>Mentorías personalizadas</li>
-                <li>Recursos exclusivos de trading</li>
-              </ul>
+              <h3 className="text-lg font-semibold text-light mb-3">Autenticación de dos factores</h3>
+              <div className="flex items-center justify-between">
+                <span className="text-light/80">Activar 2FA</span>
+                <button className="bg-sith/20 w-12 h-6 rounded-full flex items-center transition-colors focus:outline-none">
+                  <span className="bg-light w-5 h-5 rounded-full shadow-md transform translate-x-1"></span>
+                </button>
+              </div>
             </div>
-            {/* Más contenido del panel */}
+            
+            <div>
+              <h3 className="text-lg font-semibold text-light mb-3">Sesiones activas</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-dark/50 rounded-lg border border-sith/20">
+                  <div>
+                    <p className="text-light font-medium">Este dispositivo</p>
+                    <p className="text-light/60 text-sm">Windows • Chrome</p>
+                  </div>
+                  <span className="text-green-500 text-sm">Activo ahora</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t border-sith/20">
+              <button className="w-full bg-red-900/30 text-red-400 border border-red-900/50 px-4 py-2 rounded-lg hover:bg-red-900/50 transition-colors">
+                Cerrar todas las sesiones
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -299,7 +779,6 @@ const InitiateDashboard = () => {
             </div>
           </nav>
 
-          {/* Footer con usuario - Ahora con posición fija en la parte inferior */}
           <div className="mt-auto pt-4 border-t border-sith/20">
             <div className="flex items-center px-4 py-2 text-light">
               <User size={20} className="mr-3 text-sith" />
@@ -358,165 +837,47 @@ const InitiateDashboard = () => {
         </header>
 
         <main className="p-6">
-          {currentContent === 'welcome' && (
-            <div className="bg-dark/50 border border-sith/20 rounded-lg p-6 mb-6">
-              <div className="flex items-center mb-4">
-                <Star className="text-sith mr-3" size={24} />
-                <h2 className="text-2xl font-bold text-light">Bienvenido a la Academia Sith, {userName || 'Luke'}</h2>
-              </div>
-              <p className="text-light/80 mb-6">Comienza tu viaje en el camino del conocimiento oscuro.</p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <ScrollText className="text-sith mr-3" size={24} />
-                <h3 className="text-xl font-bold text-light">Contenido Introductorio</h3>
-              </div>
-              <p className="text-light/80 mb-4">Descubre los fundamentos del poder oscuro.</p>
-              <button
-                onClick={() => handleSectionChange('intro')}
-                className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
-              >
-                <Eye size={16} className="mr-2" />
-                Explorar
-              </button>
-            </div>
-
-            <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <Book className="text-sith mr-3" size={24} />
-                <h3 className="text-xl font-bold text-light">Explorar Academia</h3>
-              </div>
-              <p className="text-light/80 mb-4">Conoce nuestras instalaciones y recursos.</p>
-              <button
-                onClick={() => handleSectionChange('academy')}
-                className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
-              >
-                <Video size={16} className="mr-2" />
-                Recorrido Virtual
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <UserPlus className="text-sith mr-3" size={24} />
-                <h3 className="text-xl font-bold text-light">Conviértete en Acólito</h3>
-              </div>
-              <p className="text-light/80 mb-4">Accede a conocimiento exclusivo y beneficios especiales.</p>
-              <button
-                onClick={handleAcolyteClick}
-                className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
-              >
-                <Info size={16} className="mr-2" />
-                Más Información
-              </button>
-            </div>
-
-            <div className="bg-dark/50 border border-sith/20 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <Calendar className="text-sith mr-3" size={24} />
-                <h3 className="text-xl font-bold text-light">Eventos Destacados</h3>
-              </div>
-              <p className="text-light/80 mb-4">Participa en nuestros próximos eventos.</p>
-              <button
-                onClick={() => handleSectionChange('events')}
-                className="bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors flex items-center"
-              >
-                <Calendar size={16} className="mr-2" />
-                Ver Calendario
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-xl font-bold text-light mb-4">Módulos Gratuitos</h3>
-            {/* Contenido de módulos gratuitos */}
-          </div>
-
-          {currentContent !== 'welcome' && contentComponents[currentContent]}
+          {contentComponents[currentContent]}
+          
+          {/* Paneles y modales */}
+          {showNotifications && <NotificationsPanel />}
+          {showSecurityPanel && <SecurityPanel onClose={() => setShowSecurityPanel(false)} />}
+          {showSettingsPanel && <SettingsPanel onClose={() => setShowSettingsPanel(false)} />}
+          {showAcolyteModal && <AcolyteInfoPanel onClose={() => setShowAcolyteModal(false)} />}
         </main>
       </div>
-
-      {/* Paneles laterales */}
-      {showNotifications && <NotificationsPanel />}
-      {/* Panel de configuración */}
-      {showSettingsPanel && (
-        <div className="fixed top-16 right-4 w-80 bg-dark border border-sith/20 p-6 transform transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg rounded-lg z-50">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-light">Configuración</h2>
-            <button onClick={() => setShowSettingsPanel(false)} className="text-light hover:text-sith">
-              <X size={24} />
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-light">Modo Oscuro</span>
-              <button
-                onClick={() => setDarkMode(prevMode => !prevMode)}
-                className={`w-12 h-6 rounded-full flex items-center transition-colors duration-300 ${darkMode ? 'bg-sith justify-end' : 'bg-gray-600 justify-start'}`}
-              >
-                <span className="w-5 h-5 bg-light rounded-full mx-0.5"></span>
-              </button>
-            </div>
-            {/* Más opciones de configuración */}
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Acólito */}
-      {showAcolyteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-dark border border-sith/20 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl relative">
-            <button
-              onClick={() => setShowAcolyteModal(false)}
-              className="absolute top-4 right-4 text-light/70 hover:text-light transition-colors"
-            >
-              <X size={20} />
-            </button>
-            <div className="flex flex-col items-center text-center pt-4">
-              <Sword className="text-sith mb-4" size={48} />
-              <h2 className="text-2xl font-bold text-light mb-2">Programa de Acólitos</h2>
-              <p className="text-light/80 mb-4">
-                Únete a nuestro programa exclusivo para acceder a conocimientos avanzados, entrenamientos especiales y beneficios únicos.
-              </p>
-              <div className="bg-sith/10 border border-sith/30 rounded-lg p-4 w-full mb-4">
-                <h3 className="text-lg font-bold text-light mb-2">Beneficios:</h3>
-                <ul className="text-left text-light/80 space-y-2">
-                  <li className="flex items-start">
-                    <ChevronRight className="text-sith mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Acceso a módulos de entrenamiento avanzado</span>
-                  </li>
-                  <li className="flex items-start">
-                    <ChevronRight className="text-sith mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Mentoría personalizada con Maestros Sith</span>
-                  </li>
-                  <li className="flex items-start">
-                    <ChevronRight className="text-sith mr-2 mt-1 flex-shrink-0" size={16} />
-                    <span>Participación en eventos exclusivos</span>
-                  </li>
-                </ul>
-              </div>
-              <button
-                className="bg-sith text-light px-6 py-2 rounded-lg hover:bg-sith-dark transition-colors"
-              >
-                Solicitar Ingreso
-              </button>
-              <button
-                onClick={() => setShowAcolyteModal(false)}
-                className="mt-4 text-light/70 hover:text-light"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
 
 export default InitiateDashboard
+
+// Añade este componente dentro del mismo archivo, antes de la exportación
+const AcolyteInfoPanel = () => {
+  return (
+    <div className="bg-dark/90 border border-sith/30 rounded-lg p-6 max-w-md w-full mx-auto">
+      <div className="flex items-center mb-4">
+        <UserCircle className="text-sith mr-3" size={24} />
+        <h2 className="text-xl font-bold text-light">Información del Acólito</h2>
+      </div>
+      <p className="text-light/80 mb-4">
+        Los acólitos son aprendices que han comenzado su camino en las artes oscuras.
+        Reciben entrenamiento básico y realizan tareas para la Academia.
+      </p>
+      <div className="space-y-3">
+        <div className="flex items-center">
+          <Star className="text-sith mr-2" size={16} />
+          <span className="text-light">Nivel inicial en la jerarquía Sith</span>
+        </div>
+        <div className="flex items-center">
+          <Book className="text-sith mr-2" size={16} />
+          <span className="text-light">Acceso a conocimientos básicos</span>
+        </div>
+        <div className="flex items-center">
+          <Sword className="text-sith mr-2" size={16} />
+          <span className="text-light">Entrenamiento en combate elemental</span>
+        </div>
+      </div>
+    </div>
+  )
+}

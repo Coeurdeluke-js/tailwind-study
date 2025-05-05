@@ -9,7 +9,8 @@ const Register = ({ onSwitchMode }) => {
     email: '',
     password: '',
     confirmPassword: '',
-    uid: ''
+    uid: '',
+    phone: '' // Añadido para inicializar el campo de teléfono
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
