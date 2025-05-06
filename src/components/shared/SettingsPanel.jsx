@@ -25,7 +25,6 @@ const SettingsPanel = ({
   });
   const [loading, setLoading] = useState(false);
   const [showPhoneTooltip, setShowPhoneTooltip] = useState(false);
-  // Añadir estado para manejar errores
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -138,84 +137,80 @@ const SettingsPanel = ({
     onClose();
   };
 
-  // Asegúrate de que todas las funciones que manejan errores usen 'err' en lugar de 'error'
-  // y que no haya referencias a 'error' sin definir
-
   return (
     <div className="fixed inset-0 bg-black/50 z-[200] flex justify-end">
       <div className="bg-dark/95 w-full max-w-md h-full overflow-y-auto border-l border-sith/20">
-        <div className="p-4 border-b border-sith/20 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-light">Ajustes</h2>
+        <div className="p-3 sm:p-4 border-b border-sith/20 flex justify-between items-center">
+          <h2 className="text-lg sm:text-xl font-bold text-light">Ajustes</h2>
           <button 
             onClick={onClose}
-            className="text-light hover:text-sith transition-colors"
+            className="text-light hover:text-sith transition-colors p-1"
+            aria-label="Cerrar panel"
           >
-            <X size={24} />
+            <X size={22} />
           </button>
         </div>
         
-        {/* Mostrar mensaje de error si existe */}
         {errorMessage && (
-          <div className="bg-red-500/20 border border-red-500 text-light p-3 m-4 rounded-lg">
+          <div className="bg-red-500/20 border border-red-500 text-light p-2 sm:p-3 m-2 sm:m-4 rounded-lg text-sm">
             {errorMessage}
           </div>
         )}
         
-        {/* Pestañas de navegación */}
-        <div className="flex border-b border-sith/20">
+        <div className="flex border-b border-sith/20 text-sm sm:text-base">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`flex-1 py-3 text-center ${activeTab === 'profile' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
+            className={`flex-1 py-2 sm:py-3 text-center ${activeTab === 'profile' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
           >
             Perfil
           </button>
           <button 
             onClick={() => setActiveTab('appearance')}
-            className={`flex-1 py-3 text-center ${activeTab === 'appearance' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
+            className={`flex-1 py-2 sm:py-3 text-center ${activeTab === 'appearance' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
           >
             Apariencia
           </button>
           <button 
             onClick={() => setActiveTab('security')}
-            className={`flex-1 py-3 text-center ${activeTab === 'security' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
+            className={`flex-1 py-2 sm:py-3 text-center ${activeTab === 'security' ? 'text-sith border-b-2 border-sith' : 'text-light/70'}`}
           >
             Seguridad
           </button>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Pestaña de Perfil */}
           {activeTab === 'profile' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-light/70 mb-2">Nombre real</label>
+                <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Nombre real</label>
                 <div className="relative">
                   <input
                     type="text"
                     name="name"
                     value={profileData.name}
                     onChange={onChange}
-                    className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                    className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                   />
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                 </div>
               </div>
               <div>
-                <label className="block text-light/70 mb-2">Nickname</label>
+                <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Nickname</label>
                 <div className="relative">
                   <input
                     type="text"
                     name="username"
                     value={profileData.username}
                     onChange={onChange}
-                    className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                    className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                   />
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                 </div>
               </div>
               <button
                 onClick={handleSaveProfile}
-                className="w-full bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors mt-4"
+                className="w-full bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors mt-4 text-sm sm:text-base"
               >
                 Guardar cambios
               </button>
@@ -225,15 +220,16 @@ const SettingsPanel = ({
           {/* Pestaña de Apariencia */}
           {activeTab === 'appearance' && (
             <div>
-              <h3 className="text-lg font-semibold text-light mb-4">Apariencia</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-light mb-3 sm:mb-4">Apariencia</h3>
               <div className="flex items-center justify-between">
-                <span className="text-light/70">Modo oscuro</span>
+                <span className="text-light/70 text-sm sm:text-base">Modo oscuro</span>
                 <button
                   onClick={onToggleDarkMode}
-                  className={`w-12 h-6 rounded-full relative ${darkMode ? 'bg-sith' : 'bg-dark/50'} transition-colors`}
+                  className={`w-10 sm:w-12 h-5 sm:h-6 rounded-full relative ${darkMode ? 'bg-sith' : 'bg-dark/50'} transition-colors`}
+                  aria-label={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
                 >
                   <span 
-                    className={`absolute top-1 w-4 h-4 rounded-full bg-light transition-transform ${
+                    className={`absolute top-1 w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-light transition-transform ${
                       darkMode ? 'right-1' : 'left-1'
                     }`} 
                   />
@@ -244,132 +240,132 @@ const SettingsPanel = ({
           
           {/* Pestaña de Seguridad */}
           {activeTab === 'security' && (
-            <div className="space-y-6">
-              {/* Eliminar estas líneas que causan el error */}
-              {/* {error && <p className="text-red-500 text-sm">{error}</p>} */}
-              {/* {success && <p className="text-green-500 text-sm">{success}</p>} */}
-              
-              {/* Mostrar mensaje de error si existe */}
-              {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
-              
+            <div className="space-y-4 sm:space-y-6">
               {/* Cambiar email */}
-              <div className="space-y-4 pb-6 border-b border-sith/10">
-                <h3 className="text-lg font-semibold text-light">Modificar email</h3>
+              <div className="space-y-3 sm:space-y-4 pb-4 sm:pb-6 border-b border-sith/10">
+                <h3 className="text-base sm:text-lg font-semibold text-light">Modificar email</h3>
                 <div>
-                  <label className="block text-light/70 mb-2">Nuevo email</label>
+                  <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Nuevo email</label>
                   <div className="relative">
                     <input
                       type="email"
                       name="email"
                       value={securityData.email}
                       onChange={handleSecurityChange}
-                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                     />
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                   </div>
                 </div>
                 <button
                   onClick={updateEmail}
                   disabled={loading}
-                  className={`w-full bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full bg-sith text-light px-3 sm:px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? 'Actualizando...' : 'Actualizar email'}
                 </button>
               </div>
               
               {/* Cambiar contraseña */}
-              <div className="space-y-4 pt-2 pb-6 border-b border-sith/10">
-                <h3 className="text-lg font-semibold text-light">Modificar contraseña</h3>
+              <div className="space-y-3 sm:space-y-4 pt-1 sm:pt-2 pb-4 sm:pb-6 border-b border-sith/10">
+                <h3 className="text-base sm:text-lg font-semibold text-light">Modificar contraseña</h3>
                 <div>
-                  <label className="block text-light/70 mb-2">Contraseña actual</label>
+                  <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Contraseña actual</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       name="currentPassword"
                       value={securityData.currentPassword}
                       onChange={handleSecurityChange}
-                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                     />
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
+                
                 <div>
-                  <label className="block text-light/70 mb-2">Nueva contraseña</label>
+                  <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Nueva contraseña</label>
                   <div className="relative">
                     <input
                       type={showNewPassword ? "text" : "password"}
                       name="newPassword"
                       value={securityData.newPassword}
                       onChange={handleSecurityChange}
-                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                     />
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      aria-label={showNewPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
+                
                 <div>
-                  <label className="block text-light/70 mb-2">Confirmar nueva contraseña</label>
+                  <label className="block text-light/70 mb-1 sm:mb-2 text-sm sm:text-base">Confirmar contraseña</label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
                       value={securityData.confirmPassword}
                       onChange={handleSecurityChange}
-                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                     />
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-sith hover:text-sith-dark"
+                      aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
+                
                 <button
                   onClick={updatePassword}
                   disabled={loading}
-                  className={`w-full bg-sith text-light px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full bg-sith text-light px-3 sm:px-4 py-2 rounded-lg hover:bg-sith-dark transition-colors text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? 'Actualizando...' : 'Actualizar contraseña'}
                 </button>
               </div>
               
               {/* Sección de contacto */}
-              <div className="space-y-4 pt-2">
+              <div className="space-y-3 sm:space-y-4 pt-1 sm:pt-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-light">¿Quieres asistencia personalizada?</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-light">¿Quieres asistencia personalizada?</h3>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setShowPhoneTooltip(!showPhoneTooltip)}
                       className="text-light/70 hover:text-light"
+                      aria-label="Información sobre asistencia personalizada"
                     >
-                      <HelpCircle size={18} />
+                      <HelpCircle size={16} />
                     </button>
                     {showPhoneTooltip && (
-                      <div className="absolute right-0 bottom-full mb-2 w-64 p-3 bg-dark/90 border border-sith/20 rounded-lg text-light/80 text-xs shadow-lg z-10">
+                      <div className="absolute right-0 bottom-full mb-2 w-48 sm:w-64 p-2 sm:p-3 bg-dark/90 border border-sith/20 rounded-lg text-light/80 text-xs shadow-lg z-10">
                         Tu número de teléfono nos ayuda a brindarte asistencia personalizada y mejorar nuestros servicios. Esta información es opcional y será tratada con confidencialidad.
                         <div className="absolute bottom-[-6px] right-2 w-3 h-3 bg-dark/90 border-r border-b border-sith/20 transform rotate-45"></div>
                       </div>
                     )}
                   </div>
                 </div>
-                <p className="text-light/60 text-sm">
+                <p className="text-light/60 text-xs sm:text-sm">
                   Proporciona tu número de teléfono para recibir asistencia personalizada y acceso a eventos exclusivos.
                 </p>
                 <div>
@@ -379,10 +375,10 @@ const SettingsPanel = ({
                       name="phone"
                       value={securityData.phone}
                       onChange={handleSecurityChange}
-                      placeholder="Opcional: +34 612 345 678"
-                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-10 text-light"
+                      placeholder="+34 91 7060-4565"
+                      className="w-full bg-dark/50 border border-sith/20 rounded-lg p-2 pl-9 sm:pl-10 text-light text-sm sm:text-base"
                     />
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={18} />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-sith/70" size={16} />
                   </div>
                   <p className="text-light/50 text-xs mt-1">
                     * Esta información es completamente opcional y será tratada con confidencialidad.
@@ -391,7 +387,7 @@ const SettingsPanel = ({
                 <button
                   onClick={updatePhone}
                   disabled={loading}
-                  className={`w-full bg-sith/80 text-light px-4 py-2 rounded-lg hover:bg-sith transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full bg-sith/80 text-light px-3 sm:px-4 py-2 rounded-lg hover:bg-sith transition-colors text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? 'Guardando...' : 'Guardar información de contacto'}
                 </button>
