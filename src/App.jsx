@@ -37,8 +37,8 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            {/* Ruta para manejar el hash con el token */}
-            <Route path="/#access_token=*" element={<AuthHandler />} />
+            {/* Modificar la ruta del token de acceso */}
+            <Route path="/#access_token=/*" element={<AuthHandler />} />
           </Routes>
         </Router>
       </ErrorBoundary>
